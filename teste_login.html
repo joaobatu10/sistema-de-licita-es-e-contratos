@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teste de Login</title>
+</head>
+<body>
+    <h1>Teste de Login Direto</h1>
+    <form id="loginForm">
+        <div>
+            <label>Username:</label>
+            <input type="text" id="username" value="admin">
+        </div>
+        <div>
+            <label>Password:</label>
+            <input type="password" id="password" value="123456">
+        </div>
+        <button type="submit">Login</button>
+    </form>
+    
+    <div id="result"></div>
+    
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const resultDiv = document.getElementById('result');
+            
+            try {
+                const params = new URLSearchParams();
+                params.append('username', username);
+                params.append('password', password);
+                
+                console.log('Enviando login para:', 'http://127.0.0.1:8000/login');
+                console.log('Dados:', {username, password});
+                
+                const response = await fetch('http://127.0.0.1:8000/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: params
+                });
+                
+                console.log('Response status:', response.status);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Response data:', data);
+                    
+                    if (data.access_token) {
+                        localStorage.setItem('token', data.access_token);
+                        localStorage.setItem('user', JSON.stringify(data.user));
+                        resultDiv.innerHTML = '<p style="color: green;">Login bem-sucedido! Token salvo.</p>';
+                        
+                        // Redirecionar para a aplicação principal
+                        setTimeout(() => {
+                            window.location.href = 'http://localhost:5175/dashboard';
+                        }, 1000);
+                    } else {
+                        resultDiv.innerHTML = '<p style="color: red;">Token não recebido</p>';
+                    }
+                } else {
+                    const errorText = await response.text();
+                    console.error('Erro:', errorText);
+                    resultDiv.innerHTML = '<p style="color: red;">Erro: ' + response.status + ' - ' + errorText + '</p>';
+                }
+            } catch (error) {
+                console.error('Erro de rede:', error);
+                resultDiv.innerHTML = '<p style="color: red;">Erro de rede: ' + error.message + '</p>';
+            }
+        });
+        
+        // Limpar localStorage ao carregar
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+    </script>
+</body>
+</html>
