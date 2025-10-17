@@ -1,5 +1,5 @@
 import { Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Badge } from "@mui/material";
-import { Dashboard, Description, Work, Notifications, People } from "@mui/icons-material";
+import { Dashboard, Description, Work, Notifications, People, Assessment } from "@mui/icons-material";
 import { NavLink } from "react-router-dom";
 import { useState, useEffect } from "react";
 
@@ -46,7 +46,7 @@ const Sidebar = () => {
     >
       <List>
         <ListItem>
-          <ListItemText primary="Sistema de Gestão" sx={{ fontSize: "18px", fontWeight: "bold", color: "#fff" }} />
+          <ListItemText primary="SALC" sx={{ fontSize: "30px", fontWeight: "bold", color: "#fff" }} />
         </ListItem>
         
         <ListItem disablePadding>
@@ -82,6 +82,15 @@ const Sidebar = () => {
               <People sx={{ color: "white" }} />
             </ListItemIcon>
             <ListItemText primary="Usuários" />
+          </ListItemButton>
+        </ListItem>
+
+        <ListItem disablePadding>
+          <ListItemButton component={NavLink} to="/relatorios">
+            <ListItemIcon>
+              <Assessment sx={{ color: "white" }} />
+            </ListItemIcon>
+            <ListItemText primary="Relatórios" />
           </ListItemButton>
         </ListItem>
 

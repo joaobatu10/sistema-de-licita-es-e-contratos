@@ -10,6 +10,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Usuarios from "./pages/Usuarios";
 import Notificacoes from "./pages/Notificacoes";
+import Relatorios from "./pages/Relatorios";
 import CadastroLicitacao from "./pages/CadastroLicitacao";
 import { useEffect, useState } from "react";
 
@@ -101,6 +102,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Usuarios />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/relatorios" 
+              element={
+                <ProtectedRoute>
+                  <Relatorios />
                 </ProtectedRoute>
               } 
             />

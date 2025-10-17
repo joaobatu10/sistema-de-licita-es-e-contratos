@@ -1,0 +1,11 @@
+@"
+# Node / React
+node_modules/
+dist/
+build/
+.next/
+out/
+coverage/
+*.log
+.env*
+"@ | Out-File -Encoding utf8 .gitignore

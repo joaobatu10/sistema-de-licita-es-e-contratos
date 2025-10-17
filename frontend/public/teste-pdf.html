@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste PDF</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+    <h1>Teste de Geração de PDF</h1>
+    <button onclick="testarPDF()">Gerar PDF de Teste</button>
+
+    <script>
+        function testarPDF() {
+            try {
+                console.log('Iniciando teste de PDF...');
+                
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+
+                // Cabeçalho
+                doc.setFontSize(20);
+                doc.text('TESTE DE PDF', 105, 20, { align: 'center' });
+                
+                doc.setFontSize(12);
+                doc.text('Sistema de Licitações e Contratos - SALC', 105, 30, { align: 'center' });
+                
+                // Informações do relatório
+                doc.setFontSize(10);
+                doc.text('Data de geração: ' + new Date().toLocaleString('pt-BR'), 20, 45);
+                doc.text('Total de registros: 3', 20, 52);
+
+                // Preparar dados da tabela
+                const colunas = ['Tipo', 'Número', 'Descrição', 'Órgão', 'Data'];
+                const linhas = [
+                    ['Licitação', '001/2025', 'Teste de licitação', 'Prefeitura', '17/10/2025'],
+                    ['Contrato', '002/2025', 'Teste de contrato', 'Câmara', '17/10/2025'],
+                    ['Licitação', '003/2025', 'Outra licitação', 'Estado', '17/10/2025']
+                ];
+
+                // Adicionar tabela
+                doc.autoTable({
+                    head: [colunas],
+                    body: linhas,
+                    startY: 65,
+                    styles: {
+                        fontSize: 8,
+                        cellPadding: 2
+                    },
+                    headStyles: {
+                        fillColor: [63, 81, 181],
+                        textColor: 255,
+                        fontStyle: 'bold'
+                    },
+                    alternateRowStyles: {
+                        fillColor: [245, 245, 245]
+                    }
+                });
+
+                // Salvar o PDF usando método de blob
+                const nomeArquivo = 'teste_pdf_' + new Date().getTime() + '.pdf';
+                console.log('Tentando salvar PDF com nome:', nomeArquivo);
+                
+                const pdfOutput = doc.output('blob');
+                const url = URL.createObjectURL(pdfOutput);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = nomeArquivo;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                
+                console.log('PDF de teste gerado com sucesso!');
+                alert('PDF de teste gerado com sucesso!');
+                
+            } catch (error) {
+                console.error('Erro ao gerar PDF de teste:', error);
+                alert('Erro ao gerar PDF de teste: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>

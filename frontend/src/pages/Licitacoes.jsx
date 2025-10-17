@@ -15,16 +15,24 @@ import {
   DialogActions,
   DialogContent,
   DialogContentText,
-  DialogTitle
+  DialogTitle,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Chip
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import FilterListIcon from "@mui/icons-material/FilterList";
 import { useLocation } from "react-router-dom";
 
 const Licitacoes = () => {
   const [licitacoes, setLicitacoes] = useState([]);
+  const [filteredLicitacoes, setFilteredLicitacoes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [deleteDialog, setDeleteDialog] = useState({ open: false, licitacao: null });
   const [highlightedLicitacao, setHighlightedLicitacao] = useState(null);
+  const [modalidadeFilter, setModalidadeFilter] = useState("");
   const location = useLocation();
   const [formData, setFormData] = useState({
     numero_processo: "",
@@ -36,6 +44,14 @@ const Licitacoes = () => {
     status: "",
   });
 
+  // Modalidades disponíveis
+  const modalidades = [
+    "Pregão",
+    "Dispensa Eletrônica", 
+    "Dispensa Direta",
+    "Inexigibilidade"
+  ];
+
   useEffect(() => {
     const fetchLicitacoes = async () => {
       try {
@@ -45,6 +61,7 @@ const Licitacoes = () => {
         }
         const data = await response.json();
         setLicitacoes(data);
+        setFilteredLicitacoes(data);
         
         // Verificar se há um ID na URL para destacar
         const urlParams = new URLSearchParams(location.search);
@@ -66,9 +83,29 @@ const Licitacoes = () => {
     fetchLicitacoes();
   }, [location.search]);
 
+  // Filtrar licitações por modalidade
+  useEffect(() => {
+    if (modalidadeFilter === "") {
+      setFilteredLicitacoes(licitacoes);
+    } else {
+      const filtered = licitacoes.filter(licitacao => 
+        licitacao.modalidade?.toLowerCase().includes(modalidadeFilter.toLowerCase())
+      );
+      setFilteredLicitacoes(filtered);
+    }
+  }, [licitacoes, modalidadeFilter]);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+  };
+
+  const handleModalidadeFilterChange = (event) => {
+    setModalidadeFilter(event.target.value);
+  };
+
+  const clearFilter = () => {
+    setModalidadeFilter("");
   };
 
   const handleSubmit = async (e) => {
@@ -153,14 +190,21 @@ const Licitacoes = () => {
           fullWidth
           margin="normal"
         />
-        <TextField
-          label="Modalidade"
-          name="modalidade"
-          value={formData.modalidade}
-          onChange={handleInputChange}
-          fullWidth
-          margin="normal"
-        />
+        <FormControl fullWidth margin="normal">
+          <InputLabel>Modalidade</InputLabel>
+          <Select
+            name="modalidade"
+            value={formData.modalidade}
+            onChange={handleInputChange}
+            label="Modalidade"
+          >
+            {modalidades.map((modalidade) => (
+              <MenuItem key={modalidade} value={modalidade}>
+                {modalidade}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
         <TextField
           label="Objeto"
           name="objeto"
@@ -214,6 +258,49 @@ const Licitacoes = () => {
         </Button>
       </Box>
 
+      {/* Seção de Filtros */}
+      <Box sx={{ mb: 3, p: 2, border: 1, borderColor: 'divider', borderRadius: 2, backgroundColor: '#f8f9fa' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+          <FilterListIcon sx={{ mr: 1, color: 'primary.main' }} />
+          <Typography variant="h6" color="primary.main">
+            Filtros
+          </Typography>
+        </Box>
+        
+        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
+          <FormControl sx={{ minWidth: 200 }}>
+            <InputLabel>Filtrar por Modalidade</InputLabel>
+            <Select
+              value={modalidadeFilter}
+              onChange={handleModalidadeFilterChange}
+              label="Filtrar por Modalidade"
+            >
+              <MenuItem value="">
+                <em>Todas as modalidades</em>
+              </MenuItem>
+              {modalidades.map((modalidade) => (
+                <MenuItem key={modalidade} value={modalidade}>
+                  {modalidade}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          {modalidadeFilter && (
+            <Chip
+              label={`Modalidade: ${modalidadeFilter}`}
+              onDelete={clearFilter}
+              color="primary"
+              variant="outlined"
+            />
+          )}
+          
+          <Typography variant="body2" color="textSecondary">
+            {filteredLicitacoes.length} de {licitacoes.length} licitações
+          </Typography>
+        </Box>
+      </Box>
+
       {/* Tabela de licitações */}
       <Table>
         <TableHead>
@@ -230,7 +317,7 @@ const Licitacoes = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {licitacoes.map((licitacao) => (
+          {filteredLicitacoes.map((licitacao) => (
             <TableRow 
               key={licitacao.id_licitacao}
               sx={{
